@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { AccountType } from './enum/AccountType.enum';
 import { TransactionsEntity } from 'src/transactions/transactions.entity';
+import { AccountType } from './enum/AccountType.enum';
+import { AccountStatementEntity } from './accountStatement/accountStatement.entity';
 
 @Entity()
 export class AccountEntity {
@@ -28,6 +29,9 @@ export class AccountEntity {
 
   @OneToMany(() => TransactionsEntity, (transaction) => transaction.account)
   transactions: TransactionsEntity[];
+
+  @OneToMany(() => AccountStatementEntity, (statement) => statement.account)
+  accountStatements: AccountStatementEntity[];
 
   @Column()
   currency: string;
