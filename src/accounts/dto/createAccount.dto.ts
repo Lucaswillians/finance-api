@@ -5,21 +5,21 @@ export class CreateAccountDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
-  name: string;
+  name?: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(10)
   @MaxLength(20)
-  number: string;
+  number?: string;
 
   @IsDecimal()
-  balance: number;
+  balance?: number;
 
   @IsEnum(AccountType)
-  type: AccountType;
+  type?: AccountType;
 
   @IsString()
   @IsNotEmpty()
-  currency: string;
+  currency?: string;
 }
