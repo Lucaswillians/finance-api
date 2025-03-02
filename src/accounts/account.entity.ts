@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { TransactionsEntity } from 'src/transactions/transactions.entity';
 import { AccountType } from './enum/AccountType.enum';
 import { AccountStatementEntity } from './accountStatement/accountStatement.entity';
+import { ScheduledTransactionEntity } from 'src/scheduleTransactions/scheduleTransactions.entity';
 
 @Entity()
 export class AccountEntity {
@@ -41,4 +42,10 @@ export class AccountEntity {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  @OneToMany(() => ScheduledTransactionEntity, (scheduledTransaction) => scheduledTransaction.account)
+  scheduledTransactionsAsSource: ScheduledTransactionEntity[];
+
+  @OneToMany(() => ScheduledTransactionEntity, (scheduledTransaction) => scheduledTransaction.destinationAccount)
+  scheduledTransactionsAsDestination: ScheduledTransactionEntity[];
 }

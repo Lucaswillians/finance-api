@@ -7,10 +7,11 @@ import { TransactionController } from './transactions.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TransactionsEntity]), 
-    AccountsModule,  
+    TypeOrmModule.forFeature([TransactionsEntity]),
+    AccountsModule,
   ],
   providers: [TransactionService],
   controllers: [TransactionController],
+  exports: [TransactionService], // Certifique-se de exportar o TransactionService
 })
 export class TransactionModule { }
