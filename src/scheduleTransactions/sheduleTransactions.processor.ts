@@ -4,16 +4,20 @@ import { TransactionService } from 'src/transactions/transactions.service';
 
 @Processor('scheduled-transactions')
 export class ScheduledTransactionProcessor {
-  constructor(private readonly transactionService: TransactionService) { }
+  constructor(
+    private readonly transactionService: TransactionService,
+  ) { }
 
   @Process()
   async handleScheduledTransaction(job: Job) {
-    const { accountId, destinationAccountId, amount, type } = job.data;
+    const { accountId, destinationAccountId, amount, type, currencyCode } = job.data;
+
     await this.transactionService.createTransaction({
       accountId,
       destinationAccountId,
       amount,
       type,
+      currencyCode, 
     });
   }
 }

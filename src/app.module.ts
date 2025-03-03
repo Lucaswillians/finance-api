@@ -5,6 +5,7 @@ import { PostgresConfigService } from './config/db.config.service';
 import { AccountsModule } from './accounts/account.module';
 import { TransactionModule } from './transactions/transactions.module';
 import { ScheduledTransactionModule } from './scheduleTransactions/sheduleTransactions.module';
+import { ExchangeRateModule } from './currency/exchangeRate/exchangeRate.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ScheduledTransactionModule } from './scheduleTransactions/sheduleTransa
     AccountsModule,
     TransactionModule,
     ScheduledTransactionModule,
+    ExchangeRateModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useClass: PostgresConfigService,

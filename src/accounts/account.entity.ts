@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
 import { TransactionsEntity } from 'src/transactions/transactions.entity';
 import { AccountType } from './enum/AccountType.enum';
 import { AccountStatementEntity } from './accountStatement/accountStatement.entity';
 import { ScheduledTransactionEntity } from 'src/scheduleTransactions/scheduleTransactions.entity';
+import { CurrencyEntity } from 'src/currency/currency.entity';
 
 @Entity()
 export class AccountEntity {
@@ -34,8 +35,8 @@ export class AccountEntity {
   @OneToMany(() => AccountStatementEntity, (statement) => statement.account)
   accountStatements: AccountStatementEntity[];
 
-  @Column()
-  currency: string;
+  @ManyToOne(() => CurrencyEntity, { eager: true }) 
+  currency: CurrencyEntity;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

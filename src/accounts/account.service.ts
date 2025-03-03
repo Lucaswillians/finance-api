@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { CreateAccountDto } from './dto/createAccount.dto';
 import { UpdateAccountDto } from './dto/updateAccount.dto';
 import { AccountEntity } from './account.entity';
+import { CurrencyService } from 'src/currency/currency.service';  
 
 @Injectable()
 export class AccountsService {
   constructor(
     @InjectRepository(AccountEntity)
     private readonly accountsRepository: Repository<AccountEntity>,
+    private readonly currencyService: CurrencyService,  
   ) { }
 
   async createAccount(createAccountDto: CreateAccountDto): Promise<AccountEntity> {
@@ -18,10 +20,24 @@ export class AccountsService {
     });
 
     if (existingAccount) {
-      throw new BadRequestException(`Number account already exists.`);
+      throw new BadRequestException(`Account with number ${createAccountDto.number} already exists.`);
     }
 
-    const account = this.accountsRepository.create(createAccountDto);
+    if (!createAccountDto.currency) {
+      throw new BadRequestException('Currency code must be provided.');
+    }
+
+    const currency = await this.currencyService.getCurrencyByCode(createAccountDto.currency);
+
+    if (!currency) {
+      throw new BadRequestException(`Currency with code ${createAccountDto.currency} not found.`);
+    }
+
+    const account = this.accountsRepository.create({
+      ...createAccountDto,
+      currency, 
+    });
+
     return this.accountsRepository.save(account);
   }
 

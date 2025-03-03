@@ -19,4 +19,7 @@ export class CreateScheduledTransactionDto {
 
   @IsDateString()
   nextExecutionDate: string;
+
+  @IsString()
+  currencyCode: string;
 }

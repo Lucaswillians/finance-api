@@ -1,4 +1,4 @@
-import { IsDecimal, IsEnum, IsNumber, IsOptional, IsUUID, Min } from 'class-validator';
+import { IsDecimal, IsEnum, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { TransactionType } from '../enum/transactionts.enum';
 
 export class CreateTransactionDto {
@@ -16,4 +16,7 @@ export class CreateTransactionDto {
   @IsUUID()
   @IsOptional()
   destinationAccountId?: string;
+
+  @IsString()
+  currencyCode: string;
 }

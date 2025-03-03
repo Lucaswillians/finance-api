@@ -8,6 +8,7 @@ import { JwtStrategy } from 'src/auth/jwt.strategy';
 import { AccountStatementEntity } from './accountStatement/accountStatement.entity';
 import { AccountStatementService } from './accountStatement/accountStatement.service';
 import { TransactionsEntity } from 'src/transactions/transactions.entity';
+import { CurrencyModule } from 'src/currency/currency.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TransactionsEntity } from 'src/transactions/transactions.entity';
       secret: 'my_secret_key',
       signOptions: { expiresIn: '3600s' },
     }),
+    CurrencyModule,
   ],
   controllers: [AccountsController],
   providers: [AccountsService, AccountStatementService, JwtStrategy],

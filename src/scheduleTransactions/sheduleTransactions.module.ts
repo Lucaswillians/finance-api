@@ -7,16 +7,17 @@ import { ScheduledTransactionService } from './sheduleTransactions.service';
 import { ScheduledTransactionProcessor } from './sheduleTransactions.processor';
 import { AccountsModule } from 'src/accounts/account.module';
 import { TransactionModule } from 'src/transactions/transactions.module';
+import { QueueModule } from 'src/config/Queue.module';
+import { CurrencyModule } from 'src/currency/currency.module';  
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ScheduledTransactionEntity]),
-    BullModule.registerQueue({
-      name: 'scheduled-transactions',
-      redis: { host: 'localhost', port: 6379 },
-    }),
-    AccountsModule, 
-    TransactionModule, 
+    QueueModule, 
+    BullModule.registerQueue({ name: 'scheduled-transactions' }), 
+    AccountsModule,
+    TransactionModule,
+    CurrencyModule,  
   ],
   controllers: [ScheduledTransactionController],
   providers: [ScheduledTransactionService, ScheduledTransactionProcessor],

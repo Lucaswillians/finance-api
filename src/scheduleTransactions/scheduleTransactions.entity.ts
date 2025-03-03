@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { AccountEntity } from 'src/accounts/account.entity';
+import { CurrencyEntity } from 'src/currency/currency.entity';  // Adicionar a importação de CurrencyEntity
 import { TransactionType } from 'src/transactions/enum/transactionts.enum';
 
 @Entity('scheduled_transactions')
@@ -8,22 +9,31 @@ export class ScheduledTransactionEntity {
   id: string;
 
   @ManyToOne(() => AccountEntity, { eager: true })
-  account: AccountEntity; 
+  account: AccountEntity;  
 
   @ManyToOne(() => AccountEntity, { eager: true })
-  destinationAccount: AccountEntity; 
+  destinationAccount: AccountEntity;  
+
+  @ManyToOne(() => CurrencyEntity, { eager: true })
+  currency: CurrencyEntity;  
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  amount: number;
+  amount: number;  
+
+  @Column({ type: 'decimal', precision: 10, scale: 4, nullable: true })
+  amountInBaseCurrency: number;  
+
+  @Column({ type: 'decimal', precision: 10, scale: 4, nullable: true })
+  exchangeRate: number;  
 
   @Column({ type: 'enum', enum: TransactionType })
-  type: TransactionType;
+  type: TransactionType;  
 
   @Column()
-  frequency: string;
+  frequency: string;  
 
   @Column()
-  nextExecutionDate: Date;
+  nextExecutionDate: Date;  
 
   @CreateDateColumn()
   createdAt: Date;
