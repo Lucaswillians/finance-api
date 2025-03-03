@@ -1,6 +1,6 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { CurrencyService } from '../currency.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
 @Controller('exchange-rate')
 export class ExchangeRateController {

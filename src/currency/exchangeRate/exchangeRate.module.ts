@@ -5,8 +5,8 @@ import { CurrencyEntity } from '../currency.entity';
 import { ExchangeRateService } from './exchangeRate.service';
 import { ExchangeRateProcessor } from './ExchangeRateProcessor';
 import { ExchangeRateController } from './ExchangeRate.controller';
-import { QueueModule } from 'src/config/Queue.module';
-import { CurrencyModule } from 'src/currency/currency.module';  
+import { QueueModule } from '../../config/Queue.module';
+import { CurrencyModule } from '../../currency/currency.module';  
 
 @Module({
   imports: [

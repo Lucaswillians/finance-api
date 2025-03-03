@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateAccountDto } from './dto/createAccount.dto';
 import { UpdateAccountDto } from './dto/updateAccount.dto';
 import { AccountEntity } from './account.entity';
-import { CurrencyService } from 'src/currency/currency.service';  
+import { CurrencyService } from '../currency/currency.service';  
 
 @Injectable()
 export class AccountsService {

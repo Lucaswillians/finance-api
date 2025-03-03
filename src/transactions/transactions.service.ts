@@ -4,8 +4,8 @@ import { Repository } from 'typeorm';
 import { CreateTransactionDto } from './dto/CreateTransactions.dto';
 import { TransactionsEntity } from './transactions.entity';
 import { TransactionType } from './enum/transactionts.enum';
-import { AccountsService } from 'src/accounts/account.service';
-import { CurrencyService } from 'src/currency/currency.service';
+import { AccountsService } from '../accounts/account.service';
+import { CurrencyService } from '../currency/currency.service';
 import Decimal from 'decimal.js';
 
 @Injectable()

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransactionsEntity } from './transactions.entity';
-import { AccountsModule } from 'src/accounts/account.module';
+import { AccountsModule } from '../accounts/account.module';
 import { TransactionService } from './transactions.service';
 import { TransactionController } from './transactions.controller';
-import { CurrencyModule } from 'src/currency/currency.module'; 
+import { CurrencyModule } from '../currency/currency.module'; 
 
 @Module({
   imports: [

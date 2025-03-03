@@ -3,9 +3,9 @@ import { CreateAccountDto } from './dto/createAccount.dto';
 import { AccountsService } from './account.service';
 import { UpdateAccountDto } from './dto/updateAccount.dto';
 
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/roles.guard';
-import { Roles } from 'src/auth/roles.decorator';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 import { AccountStatementService } from './accountStatement/accountStatement.service';
 
 @Controller('accounts')

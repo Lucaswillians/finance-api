@@ -1,13 +1,13 @@
-import { AccountsService } from 'src/accounts/account.service';
+import { AccountsService } from '../accounts/account.service';
 import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ScheduledTransactionEntity } from './scheduleTransactions.entity';
-import { TransactionService } from 'src/transactions/transactions.service';
+import { TransactionService } from '../transactions/transactions.service';
 import { CreateScheduledTransactionDto } from './dto/scheduleTransactions.dto';
-import { CurrencyService } from 'src/currency/currency.service';  
+import { CurrencyService } from '../currency/currency.service';  
 
 @Injectable()
 export class ScheduledTransactionService {

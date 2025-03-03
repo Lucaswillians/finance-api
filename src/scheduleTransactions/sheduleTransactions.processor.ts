@@ -1,6 +1,6 @@
 import { Processor, Process } from '@nestjs/bull';
 import { Job } from 'bull';
-import { TransactionService } from 'src/transactions/transactions.service';
+import { TransactionService } from '../transactions/transactions.service';
 
 @Processor('scheduled-transactions')
 export class ScheduledTransactionProcessor {

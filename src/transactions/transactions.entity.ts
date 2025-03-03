@@ -1,7 +1,7 @@
-import { AccountEntity } from 'src/accounts/account.entity';
+import { AccountEntity } from '../accounts/account.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { TransactionType } from './enum/transactionts.enum';
-import { CurrencyEntity } from 'src/currency/currency.entity';
+import { CurrencyEntity } from '../currency/currency.entity';
 
 @Entity('transactions')
 export class TransactionsEntity {

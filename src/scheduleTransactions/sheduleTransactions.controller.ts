@@ -1,7 +1,7 @@
 import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { ScheduledTransactionService } from './sheduleTransactions.service';
 import { CreateScheduledTransactionDto } from './dto/scheduleTransactions.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 
 @Controller('scheduled-transactions')

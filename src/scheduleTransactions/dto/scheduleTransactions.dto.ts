@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, IsEnum, IsDateString, IsString } from 'class-validator';
-import { TransactionType } from 'src/transactions/enum/transactionts.enum';
+import { TransactionType } from '../../transactions/enum/transactionts.enum';
 
 export class CreateScheduledTransactionDto {
   @IsNotEmpty()

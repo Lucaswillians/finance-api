@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, LessThan, Repository } from 'typeorm';
-import { AccountEntity } from 'src/accounts/account.entity';
-import { TransactionsEntity } from 'src/transactions/transactions.entity';
-import { TransactionType } from 'src/transactions/enum/transactionts.enum';
+import { AccountEntity } from '../../accounts/account.entity';
+import { TransactionsEntity } from '../../transactions/transactions.entity';
+import { TransactionType } from '../../transactions/enum/transactionts.enum';
 import { AccountStatementEntity } from './accountStatement.entity';
 
 @Injectable()

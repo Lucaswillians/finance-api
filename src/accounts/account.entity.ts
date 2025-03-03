@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
-import { TransactionsEntity } from 'src/transactions/transactions.entity';
+import { TransactionsEntity } from '../transactions/transactions.entity';
 import { AccountType } from './enum/AccountType.enum';
 import { AccountStatementEntity } from './accountStatement/accountStatement.entity';
-import { ScheduledTransactionEntity } from 'src/scheduleTransactions/scheduleTransactions.entity';
-import { CurrencyEntity } from 'src/currency/currency.entity';
+import { ScheduledTransactionEntity } from '../scheduleTransactions/scheduleTransactions.entity';
+import { CurrencyEntity } from '../currency/currency.entity';
 
 @Entity()
 export class AccountEntity {

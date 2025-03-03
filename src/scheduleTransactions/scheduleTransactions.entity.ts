@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { AccountEntity } from 'src/accounts/account.entity';
-import { CurrencyEntity } from 'src/currency/currency.entity';  // Adicionar a importação de CurrencyEntity
-import { TransactionType } from 'src/transactions/enum/transactionts.enum';
+import { AccountEntity } from '../accounts/account.entity';
+import { CurrencyEntity } from '../currency/currency.entity';  // Adicionar a importação de CurrencyEntity
+import { TransactionType } from '../transactions/enum/transactionts.enum';
 
 @Entity('scheduled_transactions')
 export class ScheduledTransactionEntity {
