@@ -39,6 +39,9 @@ Instruções para usar o arquivo do Insomnia:
 - Agora, você pode testar todos os endpoints da API diretamente no Insomnia, incluindo autenticação e operações financeiras.
 
 
+## Arquivo .env
+- Coloque os campos necessários no aquivo .env para conseguir executar o projeto, no arquivo .env.example tem os campos necessários.
+
 ## Docker:
 - Rode o comando ``docker compose up -d`` para rodar os bancos de daddos
 
