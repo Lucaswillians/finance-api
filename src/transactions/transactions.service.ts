@@ -17,27 +17,23 @@ export class TransactionService {
   async createTransaction(dto: CreateTransactionDto): Promise<TransactionsEntity> {
     const account = await this.accountService.getAccountById(dto.accountId);
 
-    if (!account) {
-      throw new NotFoundException('Conta não encontrada');
-    }
-
     if (dto.type === TransactionType.WITHDRAWAL && account.balance < dto.amount) {
-      throw new BadRequestException('Saldo insuficiente para saque');
+      throw new BadRequestException('Insufficient balance!');
     }
 
     if (dto.type === TransactionType.TRANSFER) {
       if (!dto.destinationAccountId) {
-        throw new BadRequestException('Conta de destino obrigatória para transferência');
+        throw new BadRequestException('Mandatory destination account for transfer!');
       }
 
       const destinationAccount = await this.accountService.getAccountById(dto.destinationAccountId);
 
       if (!destinationAccount) {
-        throw new NotFoundException('Conta de destino não encontrada');
+        throw new NotFoundException('Destination account not found!');
       }
 
       if (account.balance < dto.amount) {
-        throw new BadRequestException('Saldo insuficiente para transferência');
+        throw new BadRequestException('Insufficient balance!');
       }
 
       account.balance = parseFloat(account.balance.toString()) - parseFloat(dto.amount.toString());
@@ -45,10 +41,12 @@ export class TransactionService {
 
       await this.accountService.updateAccount(account.id, { balance: account.balance });
       await this.accountService.updateAccount(destinationAccount.id, { balance: destinationAccount.balance });
-    } else {
+    } 
+    else {
       if (dto.type === TransactionType.DEPOSIT) {
         account.balance = parseFloat(account.balance.toString()) + parseFloat(dto.amount.toString()); 
-      } else if (dto.type === TransactionType.WITHDRAWAL) {
+      } 
+      else if (dto.type === TransactionType.WITHDRAWAL) {
         account.balance = parseFloat(account.balance.toString()) - parseFloat(dto.amount.toString()); 
       }
 

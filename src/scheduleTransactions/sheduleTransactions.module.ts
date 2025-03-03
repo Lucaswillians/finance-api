@@ -15,8 +15,8 @@ import { TransactionModule } from 'src/transactions/transactions.module';
       name: 'scheduled-transactions',
       redis: { host: 'localhost', port: 6379 },
     }),
-    AccountsModule, // Importando o módulo de contas
-    TransactionModule, // Importando o módulo de transações para acessar o TransactionService
+    AccountsModule, 
+    TransactionModule, 
   ],
   controllers: [ScheduledTransactionController],
   providers: [ScheduledTransactionService, ScheduledTransactionProcessor],

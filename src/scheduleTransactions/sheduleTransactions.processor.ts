@@ -15,6 +15,5 @@ export class ScheduledTransactionProcessor {
       amount,
       type,
     });
-    console.log(`Transferência agendada executada: ${amount}`);
   }
 }

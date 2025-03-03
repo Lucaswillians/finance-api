@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAccountDto } from './dto/createAccount.dto';
@@ -9,10 +9,18 @@ import { AccountEntity } from './account.entity';
 export class AccountsService {
   constructor(
     @InjectRepository(AccountEntity)
-    private readonly accountsRepository: Repository<AccountEntity>, 
+    private readonly accountsRepository: Repository<AccountEntity>,
   ) { }
 
   async createAccount(createAccountDto: CreateAccountDto): Promise<AccountEntity> {
+    const existingAccount = await this.accountsRepository.findOne({
+      where: { number: createAccountDto.number },
+    });
+
+    if (existingAccount) {
+      throw new BadRequestException(`Number account already exists.`);
+    }
+
     const account = this.accountsRepository.create(createAccountDto);
     return this.accountsRepository.save(account);
   }
