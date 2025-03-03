@@ -1,5 +1,5 @@
 import { AccountsService } from '../accounts/account.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { Repository } from 'typeorm';
@@ -7,17 +7,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ScheduledTransactionEntity } from './scheduleTransactions.entity';
 import { TransactionService } from '../transactions/transactions.service';
 import { CreateScheduledTransactionDto } from './dto/scheduleTransactions.dto';
-import { CurrencyService } from '../currency/currency.service';  
+import { CurrencyService } from '../currency/currency.service';
 
 @Injectable()
 export class ScheduledTransactionService {
+  private readonly logger = new Logger(ScheduledTransactionService.name);
+
   constructor(
     @InjectRepository(ScheduledTransactionEntity)
     private readonly scheduledTransactionRepository: Repository<ScheduledTransactionEntity>,
     @InjectQueue('scheduled-transactions') private readonly scheduledTransactionsQueue: Queue,
     private readonly accountService: AccountsService,
-    private readonly transactionService: TransactionService,
-    private readonly currencyService: CurrencyService,  
+    private readonly currencyService: CurrencyService,
   ) { }
 
   async scheduleTransaction(
@@ -27,14 +28,14 @@ export class ScheduledTransactionService {
     const destinationAccount = await this.accountService.getAccountById(dto.destinationAccountId);
 
     const currency = dto.currencyCode === 'USD'
-      ? await this.currencyService.getCurrencyByCode('USD')  
-      : await this.currencyService.getCurrencyByCode(dto.currencyCode);  
+      ? await this.currencyService.getCurrencyByCode('USD')
+      : await this.currencyService.getCurrencyByCode(dto.currencyCode);
 
     let amountInBaseCurrency = dto.amount;
-    
+
     if (dto.currencyCode && dto.currencyCode !== 'USD') {
-      const exchangeRate = currency.exchangeRate;  
-      amountInBaseCurrency = dto.amount / exchangeRate;  
+      const exchangeRate = currency.exchangeRate;
+      amountInBaseCurrency = dto.amount / exchangeRate;
     }
 
     const scheduledTransaction = this.scheduledTransactionRepository.create({
@@ -44,26 +45,29 @@ export class ScheduledTransactionService {
       type: dto.type,
       frequency: dto.frequency,
       nextExecutionDate: new Date(dto.nextExecutionDate),
-      currency: currency,  
-      exchangeRate: currency.exchangeRate,  
-      amountInBaseCurrency: amountInBaseCurrency,  
+      currency: currency,
+      exchangeRate: currency.exchangeRate,
+      amountInBaseCurrency: amountInBaseCurrency,
     });
 
     await this.scheduledTransactionRepository.save(scheduledTransaction);
+    this.logger.log(`Scheduled transaction created: ${scheduledTransaction.id} from account ${account.id} to account ${destinationAccount.id}`);
 
     await this.scheduledTransactionsQueue.add({
       accountId: account.id,
       destinationAccountId: destinationAccount.id,
       amount: dto.amount,
       type: dto.type,
-      currencyCode: dto.currencyCode,  
-      amountInBaseCurrency: amountInBaseCurrency,  
+      currencyCode: dto.currencyCode,
+      amountInBaseCurrency: amountInBaseCurrency,
     }, {
       delay: this.getDelayBeforeExecution(scheduledTransaction.nextExecutionDate),
       repeat: {
         cron: this.getCronExpression(dto.frequency),
       },
     });
+
+    this.logger.log(`Scheduled transaction job added to queue with cron expression: ${this.getCronExpression(dto.frequency)}`);
 
     return scheduledTransaction;
   }

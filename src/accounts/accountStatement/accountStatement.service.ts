@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, LessThan, Repository } from 'typeorm';
 import { AccountEntity } from '../../accounts/account.entity';
@@ -8,6 +8,8 @@ import { AccountStatementEntity } from './accountStatement.entity';
 
 @Injectable()
 export class AccountStatementService {
+  private readonly logger = new Logger(AccountStatementService.name);
+
   constructor(
     @InjectRepository(AccountEntity)
     private accountRepository: Repository<AccountEntity>,
@@ -24,7 +26,10 @@ export class AccountStatementService {
         where: { id: accountId },
         relations: ['transactions'],
       });
-    } catch (error) {
+      this.logger.log(`Account with ID ${accountId} found.`);
+    } 
+    catch (error) {
+      this.logger.error(`Account with ID ${accountId} not found.`);
       throw new Error('Account not found');
     }
 
@@ -41,10 +46,13 @@ export class AccountStatementService {
     transactions.forEach(transaction => {
       if (transaction.type === TransactionType.DEPOSIT) {
         totalDeposits += parseFloat(transaction.amount.toString());
-      } else if (transaction.type === TransactionType.WITHDRAWAL) {
+      } 
+      else if (transaction.type === TransactionType.WITHDRAWAL) {
         totalWithdrawals += parseFloat(transaction.amount.toString());
       }
     });
+
+    this.logger.log(`Total deposits: ${totalDeposits}, Total withdrawals: ${totalWithdrawals}`);
 
     const previousTransactions = await this.transactionRepository.find({
       where: {
@@ -57,7 +65,8 @@ export class AccountStatementService {
     previousTransactions.forEach(transaction => {
       if (transaction.type === TransactionType.DEPOSIT) {
         previousBalance += parseFloat(transaction.amount.toString());
-      } else if (transaction.type === TransactionType.WITHDRAWAL) {
+      } 
+      else if (transaction.type === TransactionType.WITHDRAWAL) {
         previousBalance -= parseFloat(transaction.amount.toString());
       }
     });
@@ -70,11 +79,15 @@ export class AccountStatementService {
     try {
       previousBalanceFixed = parseFloat(previousBalance.toFixed(2));
       endBalanceFixed = parseFloat(endBalance.toFixed(2));
-    } catch (error) {
+      this.logger.log(`Previous balance after rounding: ${previousBalanceFixed}, End balance after rounding: ${endBalanceFixed}`);
+    } 
+    catch (error) {
+      this.logger.error('Error rounding balance');
       throw new Error('Error rounding balance');
     }
 
     if (isNaN(previousBalanceFixed) || isNaN(endBalanceFixed)) {
+      this.logger.error('Invalid balance calculation after rounding');
       throw new Error('Invalid balance calculation after rounding');
     }
 
@@ -89,8 +102,12 @@ export class AccountStatementService {
     });
 
     try {
-      return await this.statementRepository.save(statement);
-    } catch (error) {
+      const savedStatement = await this.statementRepository.save(statement);
+      this.logger.log(`Account statement for account ID ${accountId} successfully generated.`);
+      return savedStatement;
+    } 
+    catch (error) {
+      this.logger.error('Failed to save account statement');
       throw new Error('Failed to save account statement');
     }
   }

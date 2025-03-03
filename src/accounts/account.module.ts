@@ -9,6 +9,8 @@ import { AccountStatementEntity } from './accountStatement/accountStatement.enti
 import { AccountStatementService } from './accountStatement/accountStatement.service';
 import { TransactionsEntity } from '../transactions/transactions.entity';
 import { CurrencyModule } from '../currency/currency.module';
+import { WinstonModule } from 'nest-winston';
+import { appLogger } from '../Logger';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { CurrencyModule } from '../currency/currency.module';
       signOptions: { expiresIn: '3600s' },
     }),
     CurrencyModule,
+    WinstonModule.forRoot(appLogger),
   ],
   controllers: [AccountsController],
   providers: [AccountsService, AccountStatementService, JwtStrategy],

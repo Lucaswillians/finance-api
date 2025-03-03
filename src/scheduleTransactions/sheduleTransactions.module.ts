@@ -9,6 +9,8 @@ import { AccountsModule } from '../accounts/account.module';
 import { TransactionModule } from '../transactions/transactions.module';
 import { QueueModule } from '../config/Queue.module';
 import { CurrencyModule } from '../currency/currency.module';  
+import { WinstonModule } from 'nest-winston';
+import { appLogger } from 'src/Logger';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { CurrencyModule } from '../currency/currency.module';
     AccountsModule,
     TransactionModule,
     CurrencyModule,  
+    WinstonModule.forRoot(appLogger),
   ],
   controllers: [ScheduledTransactionController],
   providers: [ScheduledTransactionService, ScheduledTransactionProcessor],

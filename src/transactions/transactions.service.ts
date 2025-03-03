@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTransactionDto } from './dto/CreateTransactions.dto';
@@ -10,6 +10,8 @@ import Decimal from 'decimal.js';
 
 @Injectable()
 export class TransactionService {
+  private readonly logger = new Logger(TransactionService.name);
+
   constructor(
     @InjectRepository(TransactionsEntity)
     private readonly transactionsRepository: Repository<TransactionsEntity>,
@@ -24,6 +26,7 @@ export class TransactionService {
     try {
       const account = await this.accountService.getAccountById(dto.accountId);
       if (!account) {
+        this.logger.error(`Account with ID ${dto.accountId} not found`);
         throw new NotFoundException('Destiny account not found!');
       }
 
@@ -31,6 +34,7 @@ export class TransactionService {
       const transactionAmount = new Decimal(dto.amount);
 
       if (dto.type === TransactionType.WITHDRAWAL && accountBalance.lessThan(transactionAmount)) {
+        this.logger.error(`Insufficient balance in account ${dto.accountId} for withdrawal`);
         throw new BadRequestException('Insufficient balance!');
       }
 
@@ -41,12 +45,13 @@ export class TransactionService {
         currency = await this.currencyService.getCurrencyByCode(dto.currencyCode);
 
         if (!currency) {
+          this.logger.error(`Currency ${dto.currencyCode} not supported for conversion`);
           throw new BadRequestException('Currency not supported for conversion');
         }
 
         const exchangeRate = new Decimal(currency.exchangeRate);
         amountInBaseCurrency = transactionAmount.div(exchangeRate);
-      } 
+      }
       else {
         currency = await this.currencyService.getCurrencyByCode('USD');
       }
@@ -55,19 +60,23 @@ export class TransactionService {
       if (dto.destinationAccountId) {
         destinationAccount = await this.accountService.getAccountById(dto.destinationAccountId);
         if (!destinationAccount) {
+          this.logger.error(`Destination account with ID ${dto.destinationAccountId} not found`);
           throw new NotFoundException('Destiny account not found!');
         }
       }
 
       if (dto.type === TransactionType.WITHDRAWAL) {
         account.balance = accountBalance.minus(transactionAmount).toNumber();
+        this.logger.log(`Withdrawal of ${dto.amount} from account ${dto.accountId}`);
       }
       else if (dto.type === TransactionType.DEPOSIT) {
         account.balance = accountBalance.plus(transactionAmount).toNumber();
+        this.logger.log(`Deposit of ${dto.amount} to account ${dto.accountId}`);
       }
 
       if (dto.type === TransactionType.TRANSFER && destinationAccount) {
         if (accountBalance.lessThan(transactionAmount)) {
+          this.logger.error(`Insufficient balance in account ${dto.accountId} for transfer to account ${dto.destinationAccountId}`);
           throw new BadRequestException('Insufficient balance!');
         }
 
@@ -75,6 +84,7 @@ export class TransactionService {
         destinationAccount.balance = destinationAccountBalance.plus(transactionAmount).toNumber();
 
         account.balance = accountBalance.minus(transactionAmount).toNumber();
+        this.logger.log(`Transfer of ${dto.amount} from account ${dto.accountId} to account ${dto.destinationAccountId}`);
       }
 
       const transaction = this.transactionsRepository.create({
@@ -105,12 +115,14 @@ export class TransactionService {
 
       await queryRunner.commitTransaction();
 
+      this.logger.log(`Transaction ${savedTransaction.id} created successfully`);
       return savedTransaction;
-    } 
+    }
     catch (error) {
       await queryRunner.rollbackTransaction();
-      throw error; 
-    } 
+      this.logger.error('Error creating transaction', error.stack);
+      throw error;
+    }
     finally {
       await queryRunner.release();
     }
