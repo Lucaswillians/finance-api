@@ -12,7 +12,14 @@ services:
     volumes:
       - postgres:/data/postgres
     ports:
-      - "5434:5432"  # Alterando para 5433, já que 5432 está em uso
+      - "5434:5432"  # Alterando para 5434, já que 5432 está em uso
+    restart: unless-stopped
+
+  # Redis
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
     restart: unless-stopped
 
 volumes:
