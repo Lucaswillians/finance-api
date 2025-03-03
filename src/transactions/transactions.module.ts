@@ -6,7 +6,7 @@ import { TransactionService } from './transactions.service';
 import { TransactionController } from './transactions.controller';
 import { CurrencyModule } from '../currency/currency.module'; 
 import { WinstonModule } from 'nest-winston';
-import { appLogger } from 'src/Logger';
+import { appLogger } from '../Logger';
 
 @Module({
   imports: [

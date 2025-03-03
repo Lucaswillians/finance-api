@@ -5,9 +5,13 @@ import { Repository } from 'typeorm';
 import { CurrencyEntity } from '../currency.entity';
 import { NotFoundException } from '@nestjs/common';
 
+const mockWinston = {
+  info: jest.fn(),
+  error: jest.fn(),
+};
+
 describe('CurrencyService', () => {
   let service: CurrencyService;
-  let currencyRepository: Repository<CurrencyEntity>;
 
   const mockCurrencyRepository = {
     findOne: jest.fn(),
@@ -22,11 +26,14 @@ describe('CurrencyService', () => {
           provide: getRepositoryToken(CurrencyEntity),
           useValue: mockCurrencyRepository,
         },
+        {
+          provide: 'winston', // Aqui você mocka o winston
+          useValue: mockWinston,
+        },
       ],
     }).compile();
 
     service = module.get<CurrencyService>(CurrencyService);
-    currencyRepository = module.get<Repository<CurrencyEntity>>(getRepositoryToken(CurrencyEntity));
   });
 
   it('should be defined', () => {

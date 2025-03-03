@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CurrencyService } from './currency.service';
 import { CurrencyEntity } from './currency.entity'; 
 import { WinstonModule } from 'nest-winston';
-import { appLogger } from 'src/Logger';
+import { appLogger } from '../Logger';
 
 @Module({
   imports: [TypeOrmModule.forFeature([CurrencyEntity]), WinstonModule.forRoot(appLogger)],  

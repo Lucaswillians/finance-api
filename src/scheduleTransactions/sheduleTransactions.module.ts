@@ -10,7 +10,7 @@ import { TransactionModule } from '../transactions/transactions.module';
 import { QueueModule } from '../config/Queue.module';
 import { CurrencyModule } from '../currency/currency.module';  
 import { WinstonModule } from 'nest-winston';
-import { appLogger } from 'src/Logger';
+import { appLogger } from '../Logger';
 
 @Module({
   imports: [
