@@ -18,86 +18,101 @@ export class TransactionService {
   ) { }
 
   async createTransaction(dto: CreateTransactionDto): Promise<TransactionsEntity> {
+    const queryRunner = this.transactionsRepository.manager.connection.createQueryRunner();
+    await queryRunner.startTransaction();
 
-    const account = await this.accountService.getAccountById(dto.accountId);
-    if (!account) {
-      throw new NotFoundException('Conta de origem não encontrada');
-    }
-
-    const accountBalance = new Decimal(account.balance);
-    const transactionAmount = new Decimal(dto.amount);
-
-    if (dto.type === TransactionType.WITHDRAWAL && accountBalance.lessThan(transactionAmount)) {
-      throw new BadRequestException('Saldo insuficiente para saque!');
-    }
-
-    let amountInBaseCurrency = transactionAmount;
-    let currency;
-
-    if (dto.currencyCode && dto.currencyCode !== 'USD') {
-      currency = await this.currencyService.getCurrencyByCode(dto.currencyCode);
-
-      if (!currency) {
-        throw new BadRequestException('Moeda não suportada para conversão');
+    try {
+      const account = await this.accountService.getAccountById(dto.accountId);
+      if (!account) {
+        throw new NotFoundException('Destiny account not found!');
       }
 
-      const exchangeRate = new Decimal(currency.exchangeRate);
-      amountInBaseCurrency = transactionAmount.div(exchangeRate);
-    } 
-    else {
-      currency = await this.currencyService.getCurrencyByCode('USD');
-    }
+      const accountBalance = new Decimal(account.balance);
+      const transactionAmount = new Decimal(dto.amount);
 
-    let destinationAccount;
-    if (dto.destinationAccountId) {
-      destinationAccount = await this.accountService.getAccountById(dto.destinationAccountId);
-      if (!destinationAccount) {
-        throw new NotFoundException('Conta de destino não encontrada');
-      }
-    }
-
-    if (dto.type === TransactionType.WITHDRAWAL) {
-      account.balance = accountBalance.minus(transactionAmount).toNumber();
-      console.log(`Saque realizado. Novo saldo da conta de origem: ${account.balance}`);
-    } 
-    else if (dto.type === TransactionType.DEPOSIT) {
-      account.balance = accountBalance.plus(transactionAmount).toNumber();
-      console.log(`Depósito realizado. Novo saldo da conta de origem: ${account.balance}`);
-    }
-
-    if (dto.type === TransactionType.TRANSFER && destinationAccount) {
-      if (accountBalance.lessThan(transactionAmount)) {
-        throw new BadRequestException('Saldo insuficiente para transferência!');
+      if (dto.type === TransactionType.WITHDRAWAL && accountBalance.lessThan(transactionAmount)) {
+        throw new BadRequestException('Insufficient balance!');
       }
 
-      const destinationAccountBalance = new Decimal(destinationAccount.balance);
-      destinationAccount.balance = destinationAccountBalance.plus(transactionAmount).toNumber();
+      let amountInBaseCurrency = transactionAmount;
+      let currency;
 
-      account.balance = accountBalance.minus(transactionAmount).toNumber();
-    }
+      if (dto.currencyCode && dto.currencyCode !== 'USD') {
+        currency = await this.currencyService.getCurrencyByCode(dto.currencyCode);
 
-    const transaction = this.transactionsRepository.create({
-      type: dto.type,
-      amount: dto.amount,
-      account: account,
-      destinationAccount: destinationAccount,
-      amountInBaseCurrency: amountInBaseCurrency.toNumber(),
-      currency: currency,
-      exchangeRate: currency.exchangeRate,
-    });
+        if (!currency) {
+          throw new BadRequestException('Currency not supported for conversion');
+        }
 
-    const savedTransaction = await this.transactionsRepository.save(transaction);
+        const exchangeRate = new Decimal(currency.exchangeRate);
+        amountInBaseCurrency = transactionAmount.div(exchangeRate);
+      } 
+      else {
+        currency = await this.currencyService.getCurrencyByCode('USD');
+      }
 
-    await this.accountService.updateAccount(account.id, {
-      balance: account.balance,
-    });
+      let destinationAccount;
+      if (dto.destinationAccountId) {
+        destinationAccount = await this.accountService.getAccountById(dto.destinationAccountId);
+        if (!destinationAccount) {
+          throw new NotFoundException('Destiny account not found!');
+        }
+      }
 
-    if (destinationAccount) {
-      await this.accountService.updateAccount(destinationAccount.id, {
-        balance: destinationAccount.balance,
+      if (dto.type === TransactionType.WITHDRAWAL) {
+        account.balance = accountBalance.minus(transactionAmount).toNumber();
+      }
+      else if (dto.type === TransactionType.DEPOSIT) {
+        account.balance = accountBalance.plus(transactionAmount).toNumber();
+      }
+
+      if (dto.type === TransactionType.TRANSFER && destinationAccount) {
+        if (accountBalance.lessThan(transactionAmount)) {
+          throw new BadRequestException('Insufficient balance!');
+        }
+
+        const destinationAccountBalance = new Decimal(destinationAccount.balance);
+        destinationAccount.balance = destinationAccountBalance.plus(transactionAmount).toNumber();
+
+        account.balance = accountBalance.minus(transactionAmount).toNumber();
+      }
+
+      const transaction = this.transactionsRepository.create({
+        type: dto.type,
+        amount: dto.amount,
+        account: account,
+        destinationAccount: destinationAccount,
+        amountInBaseCurrency: amountInBaseCurrency.toNumber(),
+        currency: currency,
+        exchangeRate: currency.exchangeRate,
       });
-    }
 
-    return savedTransaction;
+      const savedTransaction = await queryRunner.manager.save(transaction);
+
+      await queryRunner.manager.update(
+        account.constructor,
+        account.id,
+        { balance: account.balance }
+      );
+
+      if (destinationAccount) {
+        await queryRunner.manager.update(
+          destinationAccount.constructor,
+          destinationAccount.id,
+          { balance: destinationAccount.balance }
+        );
+      }
+
+      await queryRunner.commitTransaction();
+
+      return savedTransaction;
+    } 
+    catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error; 
+    } 
+    finally {
+      await queryRunner.release();
+    }
   }
 }
